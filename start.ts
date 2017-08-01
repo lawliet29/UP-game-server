@@ -6,9 +6,9 @@ import * as SocketIO from 'socket.io'
 import * as http from 'http'
 import {SingletonAdminStateService} from './src/server/AdminStateService'
 
-const playerPort = 8080
-const adminPort = 8081
-const apiPort = 8082
+const playerPort = 9090
+const adminPort = 9091
+const apiPort = 9092
 
 const playerConfig = {
     entry: {main: [
@@ -96,13 +96,21 @@ playerSocket.on('connection', socket => {
 adminSocket.on('connection', socket => {
     const emitUpdate = newState => socket.emit('update', newState)
 
-    SingletonAdminStateService.stateService.subscribe(emitUpdate)
+    SingletonAdminStateService.stateService.subscribe(emitUpdate, {
+        text: `Подключился администратор: ${socket.handshake.address}, clientId: ${socket.client.id}`,
+        timestamp: new Date(),
+        icon: 'green spy'
+    })
     
     socket.on('action', ({name, params}) => {
         SingletonAdminStateService[name](...params);
     })
 
-    socket.on('disconnect', () => SingletonAdminStateService.stateService.unsubscribe(emitUpdate))
+    socket.on('disconnect', () => SingletonAdminStateService.stateService.unsubscribe(emitUpdate, {
+        text: `Администратор ${socket.client.id} отключился`,
+        timestamp: new Date(),
+        icon: 'red spy'
+    }))
 
     emitUpdate(SingletonAdminStateService.stateService.state)
 })

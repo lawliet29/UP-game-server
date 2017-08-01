@@ -5,12 +5,19 @@ export interface RoundInfo {
     }
 }
 
+export interface LogEntry {
+    text: string,
+    timestamp: Date,
+    icon?: string
+}
+
 export interface TeamInfo {
     connectedClientIds: string[],
     name?: string,
 }
 
 export interface GameState {
+    log: LogEntry[],
     currentRound: number | null,
     currentQuestion: number | null,
     teams: {[teamId: string]: TeamInfo}
@@ -20,6 +27,7 @@ export class GameStateService {
     state: GameState = {
         currentRound: null,
         currentQuestion: null,
+        log: [],
         teams: {}
     }
 
@@ -29,12 +37,18 @@ export class GameStateService {
         this.state = {...this.state, ...newState}
     }
 
-    subscribe(callback: (newState: GameState) => void) {
+    log(logEntry: LogEntry) {
+        this.setState({log: [logEntry, ...this.state.log]})
+    }
+
+    subscribe(callback: (newState: GameState) => void, logEntry: LogEntry) {
         this.subscriptions.push(callback)
+        this.log(logEntry)
     } 
 
-    unsubscribe(callback: (newState: GameState) => void) {
+    unsubscribe(callback: (newState: GameState) => void, logEntry: LogEntry) {
         this.subscriptions = this.subscriptions.filter(s => s !== callback)
+        this.log(logEntry)
     }
 }
 
