@@ -6,6 +6,8 @@ import * as ReactDOM from 'react-dom'
 
 const adminSocket = io('/admin')
 
+const action = (name, ...params) => adminSocket.emit('action', {name, params});
+
 class StatefulWrapper extends React.Component<{}, GameState> {
     constructor(props) {
         super(props)
@@ -16,7 +18,7 @@ class StatefulWrapper extends React.Component<{}, GameState> {
     }
 
     render() {
-        return React.createElement(Interface, {...this.state, socket: adminSocket})
+        return React.createElement(Interface, {...this.state, socket: adminSocket, action})
     }
 }
 

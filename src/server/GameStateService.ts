@@ -35,6 +35,7 @@ export class GameStateService {
     
     setState(newState: Partial<GameState>) {
         this.state = {...this.state, ...newState}
+        this.subscriptions.forEach(callback => callback(this.state))
     }
 
     log(logEntry: LogEntry) {
